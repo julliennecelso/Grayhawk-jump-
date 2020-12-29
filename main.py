@@ -4,9 +4,9 @@ from kivy.properties import ObjectProperty
 from kivy.uix.image import Image
 from kivy.core.window import Window
 from kivy.clock import Clock
+from kivy.core.audio import SoundLoader
 
 from pipe import Pipe
-
 
 class Background(Widget):
     cloud_texture = ObjectProperty(None)
@@ -24,13 +24,17 @@ class Background(Widget):
         self.floor_texture.wrap = 'repeat'
         self.floor_texture.uvsize = (Window.width / self.floor_texture.width, -1)
 
+        self.music = SoundLoader.load("bgm.mp3")
+        # self.music.play()
+        self.music.loop = True
+        self.music.play()
+
     def on_size(self, *args):
         self.cloud_texture.uvsize = (self.width / self.cloud_texture.width, -1)
         self.floor_texture.uvsize = (self.width / self.floor_texture.width, -1)
 
     def scroll_textures(self, time_passed):
-        # Update the uvpos of the texture
-        self.cloud_texture.uvpos = ( (self.cloud_texture.uvpos[0] + time_passed/3.0)%Window.width , self.cloud_texture.uvpos[1])
+        # Update the uvpos of the texture passed/3.0)%Window.width , self.cloud_texture.uvpos[1])
         self.floor_texture.uvpos = ( (self.floor_texture.uvpos[0] + time_passed)%Window.width, self.floor_texture.uvpos[1])
 
         # Redraw the texture
@@ -39,6 +43,14 @@ class Background(Widget):
 
         texture = self.property('floor_texture')
         texture.dispatch(self)
+from kivy.uix.screenmanager import Screen
+
+class MainScreen(Screen):
+    pass
+
+class AllLevelsCompleted(Screen):
+    pass
+
 
 from random import randint
 from kivy.properties import NumericProperty
@@ -55,15 +67,14 @@ class Bird(Image):
         self.source = "bird1.png"
         super().on_touch_up(touch)
 
-
 class MainApp(App):
     pipes = []
     GRAVITY = 300
     was_colliding = False
 
-    #def on_start(self):
-    #    Clock.schedule_interval(self.root.ids.background.scroll_textures, 1/60.)
 
+    def on_start(self):
+       Clock.schedule_interval(self.root.ids.background.scroll_textures, 1/60.)
     def move_bird(self, time_passed):
         bird = self.root.ids.bird
         bird.y = bird.y + bird.velocity * time_passed
@@ -99,7 +110,6 @@ class MainApp(App):
         self.root.ids.start_button.disabled = False
         self.root.ids.start_button.opacity = 1
 
-
     def next_frame(self, time_passed):
         self.move_bird(time_passed)
         self.move_pipes(time_passed)
@@ -128,8 +138,73 @@ class MainApp(App):
         # Move the pipes
         #Clock.schedule_interval(self.move_pipes, 1/60.)
 
+    # def move_pipes(self, time_passed):
+    #     # Move pipes
+    #     for pipe in self.pipes:
+    #         pipe.x -= time_passed * 100
+    #
+    #     # Check if we need to reposition the pipe at the right side
+    #     num_pipes = 5
+    #     distance_between_pipes = Window.width / (num_pipes - 1)
+    #     pipe_xs = list(map(lambda pipe: pipe.x, self.pipes))
+    #     right_most_x = max(pipe_xs)
+    #     if right_most_x <= Window.width - distance_between_pipes:
+    #         most_left_pipe = self.pipes[pipe_xs.index(min(pipe_xs))]
+    #         most_left_pipe.x = Window.width
+    #
+
+from kivymd.app import MDApp
+from kivy.lang import Builder
+
+
+class Test(MDApp):
+    def build(self):
+        self.title = 'College of Engineering'
+        self.theme_cls.primary_palette = "Brown"
+        return Builder.load_string(
+            '''
+BoxLayout:
+    orientation:'vertical'
+    MDToolbar:
+        title: 'Select your Engineering course then press close to play'
+        md_bg_color: app.theme_cls.primary_color
+        specific_text_color: 1, 1, 1, 1
+    MDBottomNavigation:
+
+        MDBottomNavigationItem:
+            name: 'screen 1'
+            text: 'Electronics'
+            icon: 'school'
+            Image:
+                id: imageView
+                source: 'ece.png'
+
+        MDBottomNavigationItem:
+            name: 'screen 2'
+            text: 'Electrical'
+            icon: 'school'
+            Image:
+                id: imageView
+                source: 'ee.png'
+        MDBottomNavigationItem:
+            name: 'screen 3'
+            text: 'Civil'
+            icon: 'school'
+            Image:
+                id: imageView
+                source: 'ce.png'
+        MDBottomNavigationItem:
+            name: 'screen 4'
+            text: 'Mechanical'
+            icon: 'school'
+            Image:
+                id: imageView
+                source: 'me.png'
+'''
+        )
+
+class Level1(Screen):
     def move_pipes(self, time_passed):
-        # Move pipes
         for pipe in self.pipes:
             pipe.x -= time_passed * 100
 
@@ -142,5 +217,34 @@ class MainApp(App):
             most_left_pipe = self.pipes[pipe_xs.index(min(pipe_xs))]
             most_left_pipe.x = Window.width
 
+class Level2(Screen):
+    def move_pipes(self, time_passed):
+        for pipe in self.pipes:
+            pipe.x -= time_passed * 100
 
+        # Check if we need to reposition the pipe at the right side
+        num_pipes = 5
+        distance_between_pipes = Window.width / (num_pipes - 1)
+        pipe_xs = list(map(lambda pipe: pipe.x, self.pipes))
+        right_most_x = max(pipe_xs)
+        if right_most_x <= Window.width - distance_between_pipes:
+            most_left_pipe = self.pipes[pipe_xs.index(min(pipe_xs))]
+            most_left_pipe.x = Window.width
+
+class Level3(Screen):
+    def move_pipes(self, time_passed):
+        for pipe in self.pipes:
+            pipe.x -= time_passed * 100
+
+        # Check if we need to reposition the pipe at the right side
+        num_pipes = 5
+        distance_between_pipes = Window.width / (num_pipes - 1)
+        pipe_xs = list(map(lambda pipe: pipe.x, self.pipes))
+        right_most_x = max(pipe_xs)
+        if right_most_x <= Window.width - distance_between_pipes:
+            most_left_pipe = self.pipes[pipe_xs.index(min(pipe_xs))]
+            most_left_pipe.x = Window.width
+
+Test().run()
 MainApp().run()
+Level1().run()

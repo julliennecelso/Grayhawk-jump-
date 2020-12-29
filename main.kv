@@ -1,5 +1,4 @@
 #:include pipe.kv
-
 FloatLayout:
     Background:
         id: background
@@ -23,11 +22,11 @@ FloatLayout:
         text: "0"
         font_size: 60
     Button:
-        text: "Ready? Press to Start game"
-        background_normal: "transparent.png"
+        text: "Start"
+        background_normal: "heart.png"
         background_down: "transparent.png"
         id: start_button
-        font_size: 30
+        font_size: 20
         on_release:
             self.disabled = True
             self.opacity = 0
